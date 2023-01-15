@@ -82,29 +82,39 @@ def main():
     filesA, filesB = get_file_names()
     # Create a TCP/IP socket
     socket_a = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    # Connect the socket to the server
-    print(f'Connecting to {args.IP_A} port {PORT}')
-    socket_a.connect((args.IP_A, PORT))
 
-    # Send the file name to the server
-    for file_name in filesA:
-        print('File:', file_name)
-        socket_a.sendall(file_name.encode(FORMAT))
+    # Connect the socket to the Servers
+    print(f'Connecting to {args.IP_A} port {PORT}')
+    socket_a.connect((args.IP_B, PORT))
+
+    # Send the file name to Servers
+    for file_name_a in filesA:
+        print('File a:', file_name_a)
+        socket_a.sendall(file_name_a.encode(FORMAT))
 
         # Receive the file
-        with open(file_name, 'wb') as f:
-            print('receiving data')
+        with open(file_name_a, 'wb') as f:
+            print('receiving data a')
             while True:
                 data = socket_a.recv(SIZE)
                 if not data:
                     print('Finished')
                     break
-                f.write(data)
-
-        print('--file received--')
-
-    # Close the socket
+                save_file(data, file_name_a)
+                print('--file received a--')
+                break
     socket_a.close()
+
+"""        with open(file_name_b, 'wb') as f:
+            print('receiving data b')
+            while True:
+                data = socket_b.recv(SIZE)
+                if not data:
+                    print('Finished')
+                    break
+                save_file(data, file_name_b)
+                print('--file received a--')
+                break"""
 
 if __name__ == "__main__":
     # asyncio.run(main())\
