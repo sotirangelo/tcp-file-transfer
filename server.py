@@ -1,3 +1,4 @@
+import os
 import socket
 
 IP = socket.gethostbyname(socket.gethostname())
@@ -6,9 +7,14 @@ ADDR = (IP, PORT)
 FORMAT = 'utf-8'
 SIZE = 8
 SERVER_FOLDER = 'server_data'
+DIR = 'server_data'
 
 
 def main():
+    """
+    * Main function that initiates a TCP socket, binds the server and receives filenames from client
+    * in order to send the corresponding files from the DIR = 'server_data' directory.
+    """
     print("[STARTING] Server is starting.")
     """ Staring a TCP socket. """
     server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -30,7 +36,8 @@ def main():
         print(f"[RECV] Requested {filename}.")
 
         """ Sending file to client """
-        with open(f"server_data/files/{filename}", "rb") as file:
+        file_path = os.path.join(DIR, filename)
+        with open(file_path, "rb") as file:
             data = file.read()
             data += b'EOF'
             conn.sendall(data)
