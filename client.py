@@ -62,24 +62,6 @@ def get_file_names():
 
     return filesA, filesB
 
-async def faultymain():
-    filesA, filesB = get_file_names()
-    readerA, writerA = await asyncio.open_connection(args.IP_A, PORT)
-    # readerB, writerB = await asyncio.open_connection(args.IP_B, PORT)
-    tasksA = [asyncio.ensure_future(download_file(writerA, readerA, file_nameA)) for file_nameA in filesA]
-    # tasksB = [asyncio.create_task(download_file(writerB, readerB, file_nameB)) for file_nameB in filesB]
-    
-    tasks = tasksA #+ tasksB
-    s = time.perf_counter()
-    responses = await asyncio.gather(*tasks)
-    print('Respones gathered. Start saving...')
-    for response, file_name in zip(responses, filesA): # + filesB
-        await save_file(response, file_name)
-    elapsed = time.perf_counter() - s
-    print(f"{__file__} executed in {elapsed:0.2f} seconds.")
-    writerA.close()
-    # writerB.close()
-
 def main(IP, files):
     # Create a TCP/IP socket
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -87,10 +69,6 @@ def main(IP, files):
     # Connect the socket to the Servers
     print(f'Connecting to {IP} port {PORT}')
     s.connect((IP, PORT))
-
-    # make sure DIR is empty
-    if os.path.exists(DIR):
-        shutil.rmtree(DIR)
 
     # Send the file name to Servers
     for file in files:
@@ -112,6 +90,10 @@ def main(IP, files):
 
 if __name__ == "__main__":
     filesA, filesB = get_file_names()
+    # make sure directory is empty
+    if os.path.exists(DIR):
+        shutil.rmtree(DIR)
+        
     threads = []
     # create threads
     threads.append(Thread(target=main(args.IP_A, filesA)))
