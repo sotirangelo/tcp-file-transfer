@@ -111,7 +111,6 @@ def main(IP, files):
 
 
 if __name__ == "__main__":
-    # asyncio.run(main())\
     filesA, filesB = get_file_names()
     t = time.perf_counter()
     Thread(target=main(args.IP_A, filesA)).start().join()
