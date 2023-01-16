@@ -26,23 +26,9 @@ parser.add_argument('IP_B', help='IP address of server B')
 
 args = parser.parse_args()
 
-async def download_file(writer, reader, file_name):
-    print('Requesting', file_name)
-    request = f'{file_name}'.encode()
-    writer.write(request)  # Request file
-    await writer.drain()
-    response = await reader.read()
-    writer.close()
-    return response
+ADDR_A = (args.IP_A, PORT)
+ADDR_B = (args.IP_B, PORT)
 
-def save_file(response, file_name):
-    print('Saving', file_name)
-    if not os.path.exists(DIR):
-        os.makedirs(DIR)
-    file_path = os.path.join(DIR, file_name)
-    with open(file_path, 'wb') as f:
-        f.write(response)
-    print(f'File {file_name} saved.')
 
 def get_file_names():
     filesA = []
@@ -62,54 +48,59 @@ def get_file_names():
 
     return filesA, filesB
 
-def main(IP, files):
-    # Create a TCP/IP socket
-    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
-    # Connect the socket to the Servers
-    print(f'Connecting to {IP} port {PORT}')
-    s.connect((IP, PORT))
+async def connect_to_server(server_address):
+    reader, writer = await asyncio.open_connection(server_address[0], server_address[1])
+    print(f'Connected to {server_address}')
+    # connect to the servers and return the corresponding StreamWriter and StreamReader
+    return reader, writer
 
-    # Send the file name to Servers
-    for file in files:
-        print('File a:', file)
-        s.sendall(file.encode(FORMAT))
 
-        # Receive the file
-        print('receiving data a')
+async def get_file(filename, reader, writer):
+    # send the filename we want to retrieve to the server
+    writer.write(filename.encode(FORMAT))
+    await writer.drain()
+    print('Saving', filename)
+    # go to the /client_files directory
+    if not os.path.exists(DIR):
+        os.makedirs(DIR)
+    file_path = os.path.join(DIR, filename)
+    # save the contents of the retrieved file to an empty one
+    with open(file_path, 'wb') as f:
         while True:
-            data = s.recv(SIZE)
+            data = await reader.read(1024)
             if not data:
-                print('Finished')
                 break
-            save_file(data, file)
-            print('--file received a--')
-            break
-    s.close()
+            f.write(data)
+
+async def main():
+    filesA, filesB = get_file_names()
+    serverA_address = ADDR_A
+    serverB_address = ADDR_B
+    # connect to the two servers concurrently
+    results = await asyncio.gather(
+        connect_to_server(serverA_address),
+        connect_to_server(serverB_address)
+        )
+    # save the expected files
+    for fA, fB in zip(filesA, filesB):
+        await asyncio.gather(
+            get_file(fA, results[0][0], results[0][1]),
+            get_file(fB, results[1][0], results[1][1])
+        )
 
 
 if __name__ == "__main__":
-    filesA, filesB = get_file_names()
     # make sure directory is empty
     if os.path.exists(DIR):
         shutil.rmtree(DIR)
-        
-    threads = []
-    # create threads
-    threads.append(Thread(target=main(args.IP_A, filesA)))
-    threads.append(Thread(target=main(args.IP_B, filesB)))
     # start timer
     t = time.perf_counter()
-    # start threads
-    for thread in threads:
-        thread.start() 
-    # end threads (?)
-    for thread in threads:
-        thread.join()
+
+    # start main()
+    asyncio.run(main())
+
     # stop timer
     elapsed = time.perf_counter() - t
     print(f'Time elapsed since request was sent: {elapsed}')
-
-
-
 
