@@ -111,6 +111,7 @@ if __name__ == "__main__":
     if os.path.exists(DIR):
         shutil.rmtree(DIR)
     os.makedirs(DIR)
+
     """ Start timer """
     t = time.perf_counter()
 

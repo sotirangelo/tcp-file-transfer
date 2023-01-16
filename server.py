@@ -15,8 +15,8 @@ def main():
     * Main function that initiates a TCP socket, binds the server and receives filenames from client
     * in order to send the corresponding files from the DIR = 'server_data' directory.
     """
-    print("[STARTING] Server is starting.")
     """ Staring a TCP socket. """
+    print("[STARTING] Server is starting.")
     server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
     """ Bind the IP and PORT to the server. """
