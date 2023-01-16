@@ -27,11 +27,12 @@ def main():
     while True:
         """ Receiving the filename from the client. """
         filename = conn.recv(SIZE).decode(FORMAT)
-        print(f"[RECV] Receiving the filename.")
+        print(f"[RECV] Requested {filename}.")
 
         """ Sending file to client """
         with open(f"server_data/files/{filename}", "rb") as file:
             data = file.read()
+            data += b'EOF'
             conn.sendall(data)
             print(f'[SERVER] File {filename} sent.')
 

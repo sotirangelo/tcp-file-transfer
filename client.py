@@ -50,7 +50,7 @@ def get_file_names():
 
 
 async def connect_to_server(server_address):
-    reader, writer = await asyncio.open_connection(server_address[0], server_address[1])
+    reader, writer = await asyncio.open_connection(server_address[0], server_address[1], limit=SIZE)
     print(f'Connected to {server_address}')
     # connect to the servers and return the corresponding StreamWriter and StreamReader
     return reader, writer
@@ -62,16 +62,12 @@ async def get_file(filename, reader, writer):
     await writer.drain()
     print('Saving', filename)
     # go to the /client_files directory
-    if not os.path.exists(DIR):
-        os.makedirs(DIR)
     file_path = os.path.join(DIR, filename)
     # save the contents of the retrieved file to an empty one
     with open(file_path, 'wb') as f:
-        while True:
-            data = await reader.read(1024)
-            if not data:
-                break
-            f.write(data)
+        data = await reader.readuntil(separator=b'EOF')
+        data = data.replace(b'EOF', b'')
+        f.write(data)
 
 async def main():
     filesA, filesB = get_file_names()
@@ -81,7 +77,7 @@ async def main():
     results = await asyncio.gather(
         connect_to_server(serverA_address),
         connect_to_server(serverB_address)
-        )
+    )
     # save the expected files
     for fA, fB in zip(filesA, filesB):
         await asyncio.gather(
@@ -94,6 +90,7 @@ if __name__ == "__main__":
     # make sure directory is empty
     if os.path.exists(DIR):
         shutil.rmtree(DIR)
+    os.makedirs(DIR)
     # start timer
     t = time.perf_counter()
 
