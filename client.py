@@ -31,8 +31,9 @@ def get_file_names():
     """
     * Function that given the file ratio for each server returns the file names each one needs to send.
     * Ex.: client.py n_A=2 n_B=1 IP_A IP_B, server with IP_A is going to send files s001.m4s, s002.m4s, s004.m4s
-    *       and server with IP_B is going to send files s003.m4s, s006.m4s etc.
-    @return: function return filesA for server with IP_A to send, filesB for server with IP_B to send
+    * and server with IP_B is going to send files s003.m4s, s006.m4s etc.
+    @return: [] filesA containing the filenames for server with IP_A, [] filesB containing the filenames
+    for server with IP_B to send
     """
     filesA = []
     filesB = []
@@ -113,7 +114,7 @@ if __name__ == "__main__":
     """ Start timer """
     t = time.perf_counter()
 
-    """ start main() """
+    """ Start main() """
     asyncio.run(main())
 
     """ Stop timer """
