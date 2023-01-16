@@ -27,15 +27,15 @@ args = parser.parse_args()
 async def download_file(writer, reader, file_name):
     print('Requesting', file_name)
     request = f'{file_name}'.encode()
-    writer.write(request) # Request file
+    writer.write(request)  # Request file
     await writer.drain()
     response = await reader.read()
     writer.close()
     return response
 
-async def save_file(response, file_name):
+def save_file(response, file_name):
     print('Saving', file_name)
-    directory = 'downloaded_files'
+    directory = 'client_files'
     if not os.path.exists(directory):
         os.makedirs(directory)
     file_path = os.path.join(directory, file_name)
@@ -79,32 +79,30 @@ async def faultymain():
     writerA.close()
     # writerB.close()
 
-def main():
-    filesA, filesB = get_file_names()
+def main(IP, files):
     # Create a TCP/IP socket
-    socket_a = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
     # Connect the socket to the Servers
-    print(f'Connecting to {args.IP_A} port {PORT}')
-    socket_a.connect((args.IP_B, PORT))
+    print(f'Connecting to {IP} port {PORT}')
+    s.connect((IP, PORT))
 
     # Send the file name to Servers
-    for file_name_a in filesA:
-        print('File a:', file_name_a)
-        socket_a.sendall(file_name_a.encode(FORMAT))
+    for file in files:
+        print('File a:', file)
+        s.sendall(file.encode(FORMAT))
 
         # Receive the file
-        with open(file_name_a, 'wb') as f:
-            print('receiving data a')
-            while True:
-                data = socket_a.recv(SIZE)
-                if not data:
-                    print('Finished')
-                    break
-                save_file(data, file_name_a)
-                print('--file received a--')
+        print('receiving data a')
+        while True:
+            data = s.recv(SIZE)
+            if not data:
+                print('Finished')
                 break
-    socket_a.close()
+            save_file(data, file)
+            print('--file received a--')
+            break
+    s.close()
 
 
 if __name__ == "__main__":
