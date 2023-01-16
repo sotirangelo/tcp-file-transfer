@@ -107,9 +107,19 @@ def main(IP, files):
 
 if __name__ == "__main__":
     filesA, filesB = get_file_names()
+    threads = []
+    # create threads
+    threads.append(Thread(target=main(args.IP_A, filesA)))
+    threads.append(Thread(target=main(args.IP_B, filesB)))
+    # start timer
     t = time.perf_counter()
-    Thread(target=main(args.IP_A, filesA)).start().join()
-    Thread(target=main(args.IP_B, filesB)).start().join()
+    # start threads
+    for thread in threads:
+        thread.start() 
+    # end threads (?)
+    for thread in threads:
+        thread.join()
+    # stop timer
     elapsed = time.perf_counter() - t
     print(f'Time elapsed since request was sent: {elapsed}')
 
