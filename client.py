@@ -1,6 +1,7 @@
 import argparse
 import asyncio
 import os
+import shutil
 import socket
 import time
 from threading import Thread
@@ -10,6 +11,7 @@ PORT = 4455
 SIZE = 20000000
 FORMAT = "utf"
 CLIENT_FOLDER = "client_folder"
+DIR = 'client_files'
 
 parser = argparse.ArgumentParser(
     prog='TCP multiple file transfer client',
@@ -35,10 +37,9 @@ async def download_file(writer, reader, file_name):
 
 def save_file(response, file_name):
     print('Saving', file_name)
-    directory = 'client_files'
-    if not os.path.exists(directory):
-        os.makedirs(directory)
-    file_path = os.path.join(directory, file_name)
+    if not os.path.exists(DIR):
+        os.makedirs(DIR)
+    file_path = os.path.join(DIR, file_name)
     with open(file_path, 'wb') as f:
         f.write(response)
     print(f'File {file_name} saved.')
@@ -86,6 +87,10 @@ def main(IP, files):
     # Connect the socket to the Servers
     print(f'Connecting to {IP} port {PORT}')
     s.connect((IP, PORT))
+
+    # make sure DIR is empty
+    if os.path.exists(DIR):
+        shutil.rmtree(DIR)
 
     # Send the file name to Servers
     for file in files:
