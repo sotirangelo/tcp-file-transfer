@@ -23,16 +23,17 @@ def main():
     """ Server has accepted the connection from the client. """
     conn, addr = server.accept()
     print(f"[NEW CONNECTION] {addr} connected.")
-    filename = None
 
     while True:
         """ Receiving the filename from the client. """
         filename = conn.recv(SIZE).decode(FORMAT)
         print(f"[RECV] Receiving the filename.")
+        print(filename)
 
         """ Sending file to client """
         with open(f"server_data/files/{filename}", "rb") as file:
             data = file.read()
+            print(len(data))
             conn.sendall(data)
             print(f'[SERVER] File {filename} sent.')
 

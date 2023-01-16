@@ -24,27 +24,24 @@ parser.add_argument('IP_B', help='IP address of server B')
 
 args = parser.parse_args()
 
-
 async def download_file(writer, reader, file_name):
     print('Requesting', file_name)
     request = f'{file_name}'.encode()
-    writer.write(request)  # Request file
+    writer.write(request) # Request file
     await writer.drain()
     response = await reader.read()
     writer.close()
     return response
 
-
-def save_file(response, file_name):
+async def save_file(response, file_name):
     print('Saving', file_name)
-    directory = 'client_data'
+    directory = 'downloaded_files'
     if not os.path.exists(directory):
         os.makedirs(directory)
     file_path = os.path.join(directory, file_name)
     with open(file_path, 'wb') as f:
         f.write(response)
     print(f'File {file_name} saved.')
-
 
 def get_file_names():
     filesA = []
@@ -64,7 +61,6 @@ def get_file_names():
 
     return filesA, filesB
 
-
 async def faultymain():
     filesA, filesB = get_file_names()
     readerA, writerA = await asyncio.open_connection(args.IP_A, PORT)
@@ -83,31 +79,32 @@ async def faultymain():
     writerA.close()
     # writerB.close()
 
-
-def main(IP, files):
+def main():
+    filesA, filesB = get_file_names()
     # Create a TCP/IP socket
-    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    socket_a = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
     # Connect the socket to the Servers
-    print(f'Connecting to {IP} port {PORT}')
-    s.connect((IP, PORT))
+    print(f'Connecting to {args.IP_A} port {PORT}')
+    socket_a.connect((args.IP_B, PORT))
 
     # Send the file name to Servers
-    for file_name in files:
-        print('File:', file_name)
-        s.sendall(file_name.encode(FORMAT))
+    for file_name_a in filesA:
+        print('File a:', file_name_a)
+        socket_a.sendall(file_name_a.encode(FORMAT))
 
         # Receive the file
-        while True:
-            data = s.recv(SIZE)
-            if not data:
-                print('Finished')
+        with open(file_name_a, 'wb') as f:
+            print('receiving data a')
+            while True:
+                data = socket_a.recv(SIZE)
+                if not data:
+                    print('Finished')
+                    break
+                save_file(data, file_name_a)
+                print('--file received a--')
                 break
-            save_file(data, file_name)
-            print('--file received--')
-            break
-    s.sendall('End'.encode(FORMAT))
-    s.close()
+    socket_a.close()
 
 
 if __name__ == "__main__":
@@ -117,6 +114,7 @@ if __name__ == "__main__":
     Thread(target=main(args.IP_B, filesB)).start().join()
     elapsed = time.perf_counter() - t
     print(f'Time elapsed since request was sent: {elapsed}')
+
 
 
 
