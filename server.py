@@ -4,7 +4,7 @@ IP = socket.gethostbyname(socket.gethostname())
 PORT = 4455
 ADDR = (IP, PORT)
 FORMAT = 'utf-8'
-SIZE = 20000000
+SIZE = 8
 SERVER_FOLDER = 'server_data'
 
 
