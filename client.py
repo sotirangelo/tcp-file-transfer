@@ -84,6 +84,10 @@ async def get_file(filename, reader, writer):
         data = data.replace(b'EOF', b'')
         f.write(data)
 
+async def request_files_from_server(files, reader, writer):
+    for file in files:
+        await get_file(file, reader, writer)
+
 
 async def main():
     """
@@ -99,11 +103,10 @@ async def main():
         connect_to_server(serverB_address)
     )
     """ Save the expected files """
-    for fA, fB in zip(filesA, filesB):
-        await asyncio.gather(
-            get_file(fA, results[0][0], results[0][1]),
-            get_file(fB, results[1][0], results[1][1])
-        )
+    await asyncio.gather(
+        request_files_from_server(filesA, results[0][0], results[0][1]),
+        request_files_from_server(filesB, results[1][0], results[1][1])
+    )
 
 
 if __name__ == "__main__":
