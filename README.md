@@ -7,18 +7,21 @@ Repository for the third assignment of the _Wireless Networks and Mobile Communi
 > Sotirios Angelos Angelopoulos <br>
 > t8190001 <br>
 > Department of Management Science and Technology <br>
-> Athens University of Economics and Business <br> > sotiraggelos@gmail.com
+> Athens University of Economics and Business <br> 
+> sotiraggelos@gmail.com
 >
 > Ioanna Moraiti <br>
 > t8190121 <br>
 > Department of Management Science and Technology<br>
-> Athens University of Economics and Business <br> > joannamoraiti1@gmail.com
+> Athens University of Economics and Business <br>
+> joannamoraiti1@gmail.com
 >
 > **Supervising Professor**
 >
 > Vasilios Siris, Professor <br>
 > Deparment of Informatics <br>
-> Athens University of Economics and Business <br> > vsiris@aueb.gr
+> Athens University of Economics and Business <br> 
+> vsiris@aueb.gr
 
 <hr>
 
