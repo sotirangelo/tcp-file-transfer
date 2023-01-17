@@ -26,26 +26,30 @@ def main():
     server.listen()
     print("[LISTENING] Server is listening.")
 
-    """ Server has accepted the connection from the client. """
-    conn, addr = server.accept()
-    print(f"[NEW CONNECTION] {addr} connected.")
-
     while True:
-        """ Receiving the filename from the client. """
-        filename = conn.recv(SIZE).decode(FORMAT)
-        print(f"[RECV] Requested {filename}.")
 
-        """ Sending file to client """
-        file_path = os.path.join(DIR, filename)
-        with open(file_path, "rb") as file:
-            data = file.read()
-            data += b'2e51b1ab42e8a4a67f3445174be5191b'
-            conn.sendall(data)
-            print(f'[SERVER] File {filename} sent.')
+        """ Server has accepted the connection from the client. """
+        conn, addr = server.accept()
+        print(f"[NEW CONNECTION] {addr} connected.")
 
-    """ Closing the connection from the server. """
-    server.close()
-    print('[SERVER] server closed.')
+        while True:
+
+            """ Receiving the filename from the client. """
+            filename = conn.recv(SIZE).decode(FORMAT)
+            if not filename:
+                break
+            print(f"[RECV] Requested {filename}.")
+
+            """ Sending file to client """
+            file_path = os.path.join(DIR, filename)
+            with open(file_path, "rb") as file:
+                data = file.read()
+                data += b'2e51b1ab42e8a4a67f3445174be5191b'
+                conn.sendall(data)
+                print(f'[SERVER] File {filename} sent.')
+
+        print(f"[CLOSING CONNECTION] {addr} closed.")
+        conn.close()
 
 
 if __name__ == '__main__':
