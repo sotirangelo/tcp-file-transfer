@@ -104,8 +104,8 @@ async def main():
     )
     """ Save the expected files """
     await asyncio.gather(
-        request_files_from_server(filesA, results[0][0], results[0][1]),
-        request_files_from_server(filesB, results[1][0], results[1][1])
+        asyncio.to_thread(request_files_from_server(filesA, results[0][0], results[0][1])),
+        asyncio.to_thread(request_files_from_server(filesB, results[1][0], results[1][1]))
     )
 
 
