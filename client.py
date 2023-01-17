@@ -65,7 +65,7 @@ async def connect_to_server(server_address):
     return reader, writer
 
 
-async def get_file(filename, reader, writer):
+async def get_file(filename, reader, writer, server):
     """
     * Function that sends the server the filename we want to download and writes the response in a file with
     * the same name inside directory DIR = 'client_data'.
@@ -76,17 +76,17 @@ async def get_file(filename, reader, writer):
     """ Send the filename we want to retrieve to the server """
     writer.write(filename.encode(FORMAT))
     await writer.drain()
-    print(f'[CLIENT] Saving file: {filename}')
+    print(f'[CLIENT][{server}] Saving file: {filename}')
     file_path = os.path.join(DIR, filename)
     """ Save the contents of the retrieved file to an empty one """
     with open(file_path, 'wb') as f:
-        data = await reader.readuntil(separator=b'EOF')
-        data = data.replace(b'EOF', b'')
+        data = await reader.readuntil(separator=b'2e51b1ab42e8a4a67f3445174be5191b')
+        data = data.replace(b'2e51b1ab42e8a4a67f3445174be5191b', b'')
         f.write(data)
 
-async def request_files_from_server(files, reader, writer):
+async def request_files_from_server(files, reader, writer, server):
     for file in files:
-        await get_file(file, reader, writer)
+        await get_file(file, reader, writer, server)
 
 
 async def main():
@@ -104,8 +104,8 @@ async def main():
     )
     """ Save the expected files """
     await asyncio.gather(
-        asyncio.to_thread(request_files_from_server(filesA, results[0][0], results[0][1])),
-        asyncio.to_thread(request_files_from_server(filesB, results[1][0], results[1][1]))
+        request_files_from_server(filesA, results[0][0], results[0][1], serverA_address),
+        request_files_from_server(filesB, results[1][0], results[1][1], serverB_address)
     )
 
 

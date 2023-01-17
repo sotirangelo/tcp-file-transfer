@@ -39,7 +39,7 @@ def main():
         file_path = os.path.join(DIR, filename)
         with open(file_path, "rb") as file:
             data = file.read()
-            data += b'EOF'
+            data += b'2e51b1ab42e8a4a67f3445174be5191b'
             conn.sendall(data)
             print(f'[SERVER] File {filename} sent.')
 
